@@ -8,12 +8,12 @@ var ImagesInc_Utilizes = (function() {
         for (var property in this) {
             // if deep flag is not set, just do a shallow copy of properties
             if (!deep) {
-                if(this.hasOwnProperty(property)){
+                if (this.hasOwnProperty(property)) {
                     newClonedObject[property] = this[property];
                 }
             }
-            // to make a deep copy, call the function recursively
-            else if(typeof this[property] == 'object' && this.hasOwnProperty(property)) {
+            // to make a deep clone, call the function recursively
+            else if (typeof this[property] == 'object' && this.hasOwnProperty(property)) {
                 newClonedObject[property] = this[property].clone(deep);
             } else if (this.hasOwnProperty(property)) {
                 // just clone all properties
@@ -40,17 +40,17 @@ var TestModule = (function() {
             return anotherTest;
         },
 
-        getPrivacyCalue: function() {
+        getPrivacyValue: function() {
             return privateTestValue
         },
 
-        chanePrivateVar: function() {
+        changePrivateVar: function() {
             privateTestValue = 'privateTestValue has been changed';
             return privateTestValue;
         },
-        testArray: [1,2,3]
+        testArray: [1, 2, 3]
     };
-})(); 
+})();
 
 // MODULE INHERITANCE
 var Polygon_Module = (function() {
@@ -84,7 +84,7 @@ var Rectangle_Module = (function() {
     var name = 'Rectangle';
     var color = 'blue';
 
-    Rectangle._proto_ = Polygon_Module;
+    Rectangle.__proto__ = Polygon_Module;
 
     Rectangle.getName = function() {
         return name;
@@ -92,7 +92,7 @@ var Rectangle_Module = (function() {
     Rectangle.getSides = function() {
         return sides;
     };
-    
+
     Rectangle.getColor = function() {
         return color;
     };
@@ -100,10 +100,70 @@ var Rectangle_Module = (function() {
     return {
         getName: Rectangle.getName,
         getSides: Rectangle.getSides,
-        getType: Polygon_Module.getType
+        getType: Rectangle.getType
     }
 })();
+console.log('Displayed module is: ' + Polygon_Module.getName());
+console.log('Polygon\' sides are : ' + Polygon_Module.getSides());
+console.log(' Rectangle\'s sides are : ' + Rectangle_Module.getSides());
+console.log('Rectangle\'s type is: ' + Rectangle_Module.getType());
 
+// PARASITING MODULE INHERITANCE
+var Polygon_Module2 = (function() {
+    var sides = 6,
+        name = 'Polygon',
+        type = '2D';
+
+    // constructor
+    function Polygon() {
+        this.sides = sides;
+        this.name = name;
+        this.type = type;
+    }
+
+    Polygon.prototype.getSides = function() {
+        return this.sides;
+    };
+    Polygon.prototype.getName = function() {
+        return this.name;
+    };
+    Polygon.prototype.getType = function() {
+        return this.type;
+    };
+
+    // annonymous object with regerence to Polycon class/object/
+    return {
+        Polygon: Polygon
+    };
+})();
+
+var Rectangle_Module2 = (function() {
+    var sides = 4,
+        name = 'Rectangle';
+
+    // constructor
+    function Rectangle() {
+        // make it use aviable interface in parent Object to borrow its constructor
+        Polygon_Module2.Polygon.apply(this);
+
+        this.sides = sides;
+        this.name = name;
+    };
+    // enable access aviable to all methods defined in parent/Rectangle/ Object
+    Rectangle.prototype = Polygon_Module2.Polygon.prototype;
+    // reset the constructor property so that it points the correct object 
+    Rectangle.prototype.constructor = Rectangle;
+
+    // start the inheritance relationship between the two objets and set the object's context properly
+    var RectangleInstance = new Rectangle();
+    return {
+        Rectangle: RectangleInstance
+    };
+})();
+console.log('1 ' + Rectangle_Module2.Rectangle.getName());
+console.log('2 ' + Rectangle_Module2.Rectangle.getSides());
+console.log('3 ' + Rectangle_Module2.Rectangle.getType());
+// PARASITING MODULE INHERITANCE END
 //creating object definition for the header:
 var ImagesInc_GlobalData = (function(module) {
     var headerContainerDef = {
